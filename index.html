@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1e2e">
+<title>The Sri Lanka Bachelor Escape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --ocean:#0a1e2e; --ocean-deep:#050f18; --charcoal:#12151a;
+  --green:#1f5c47; --orange:#ff7a45; --gold:#d9a856; --sand:#f3ede0;
+  font-family:'Space Grotesk',sans-serif,-apple-system,BlinkMacSystemFont;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ocean-deep); color:var(--sand); overflow-x:hidden;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-.01em}
+::selection{background:var(--orange); color:var(--ocean-deep)}
+::-webkit-scrollbar{width:0}
+
+/* NAV */
+nav{
+  position:fixed; top:calc(env(safe-area-inset-top,0px) + 16px); left:50%; transform:translateX(-50%);
+  z-index:100; display:flex; gap:2px; background:rgba(10,20,30,.55); backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.08); border-radius:40px; padding:6px; font-size:12px;
+}
+nav a{
+  color:rgba(243,237,224,.55); text-decoration:none; padding:8px 14px; border-radius:30px;
+  transition:color .3s, background .3s; white-space:nowrap;
+}
+nav a.active{color:var(--ocean-deep); background:var(--gold)}
+@media(max-width:720px){ nav{font-size:10px; max-width:94vw; overflow-x:auto} nav a{padding:7px 10px} }
+@media(max-width:480px){
+  section{padding:88px 5.5vw}
+  .beat{padding-left:16px}
+  .beat .note{font-size:13px}
+  #globeWrap{margin-top:14px}
+}
+body{-webkit-tap-highlight-color:transparent}
+
+/* ROUTE RAIL */
+.rail{position:fixed; right:22px; top:0; height:100%; width:2px; z-index:90; display:flex; align-items:center}
+.rail-track{position:relative; width:2px; height:70vh; background:rgba(255,255,255,.12)}
+.rail-fill{position:absolute; top:0; left:0; width:100%; height:0%; background:linear-gradient(var(--gold),var(--orange))}
+@media(max-width:720px){.rail{display:none}}
+
+section{position:relative; min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:100px 6vw; overflow:hidden}
+.bg{position:absolute; inset:0; z-index:0}
+.content{position:relative; z-index:2; max-width:760px; width:100%}
+.eyebrow{font-size:13px; letter-spacing:.14em; color:var(--gold); margin-bottom:10px}
+.time{font-family:'Space Grotesk'; font-variant-numeric:tabular-nums; color:var(--gold); font-weight:600}
+
+/* HERO */
+#hero .bg{background:radial-gradient(ellipse at 30% 20%, #123147 0%, var(--ocean-deep) 60%)}
+#hero{flex-direction:column; gap:6px}
+#globeWrap{position:relative; z-index:1; width:100%; max-width:640px; height:clamp(200px,34vh,360px); margin-top:22px}
+#globeCanvas{position:absolute; inset:0; width:100%; height:100%}
+.geo-label{position:absolute; top:0; left:0; font-size:10.5px; letter-spacing:.08em; color:var(--sand); background:rgba(10,20,30,.6); padding:3px 10px; border-radius:20px; transform:translate(-9999px,-9999px); pointer-events:none; white-space:nowrap; border:1px solid rgba(255,255,255,.1)}
+.plane{position:absolute; top:0; left:0; font-size:20px; pointer-events:none; transform:translate(-9999px,-9999px); filter:drop-shadow(0 0 6px rgba(255,122,69,.6))}
+#hero h1{font-size:clamp(38px,8vw,96px); line-height:.98; margin-top:18px}
+#hero .sub{margin-top:20px; font-size:15px; color:rgba(243,237,224,.7); letter-spacing:.02em}
+#hero .dates{font-family:'Space Grotesk'; letter-spacing:.1em; color:var(--orange); font-size:14px; margin-top:26px}
+
+/* DAY BLOCKS */
+.day-num{font-size:13px; letter-spacing:.14em; color:var(--gold)}
+.day-title{font-size:clamp(30px,6vw,58px); margin:8px 0 4px}
+.day-date{font-size:13px; color:rgba(243,237,224,.55); margin-bottom:44px; letter-spacing:.04em}
+.beat{
+  border-left:1px solid rgba(255,255,255,.14); padding:6px 0 6px 20px; margin-bottom:26px;
+  opacity:0; transform:translateY(24px);
+}
+.beat .place{font-size:20px; font-family:'Fraunces'; font-weight:600; margin-top:2px}
+.beat .note{font-size:13.5px; color:rgba(243,237,224,.62); margin-top:6px; max-width:56ch}
+.beat .tag{display:inline-block; font-size:11px; color:var(--orange); border:1px solid rgba(255,122,69,.35); padding:2px 9px; border-radius:20px; margin-top:8px}
+.transport{font-size:18px; margin-right:8px}
+
+#day1 .bg{background:linear-gradient(180deg,#0a1e2e 0%,#1a2b1f 55%,#241318 100%)}
+#day2 .bg{background:linear-gradient(160deg,#0d3350 0%,#0a1e2e 100%)}
+#day3 .bg{background:linear-gradient(180deg,#052a3a 0%,#04424a 45%,#0d5c4e 100%)}
+#day4 .bg{background:linear-gradient(180deg,#12212f 0%,#1c1418 100%)}
+#day5 .bg{background:radial-gradient(ellipse at 70% 30%,#123147 0%,var(--ocean-deep) 65%)}
+
+/* ROUTE MAP SECTION */
+#route .bg{background:linear-gradient(180deg,var(--ocean-deep),#0d1b26)}
+.map-line{position:relative; max-width:420px; margin:0 auto; padding-left:34px}
+.stop{position:relative; padding:14px 0; font-family:'Space Grotesk'; font-size:14px; color:rgba(243,237,224,.8); opacity:0; transform:translateX(-14px)}
+.stop::before{content:''; position:absolute; left:-34px; top:20px; width:9px; height:9px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 4px rgba(217,168,86,.15)}
+.map-line::before{content:''; position:absolute; left:-30px; top:0; bottom:0; width:1px; background:rgba(255,255,255,.15)}
+
+.outro{text-align:center; font-size:12px; color:rgba(243,237,224,.5); margin-top:40px}
+.checks{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:26px}
+.checks span{font-size:12px; border:1px solid rgba(255,255,255,.15); padding:6px 14px; border-radius:20px}
+
+@media(prefers-reduced-motion:reduce){ .beat,.stop{opacity:1!important; transform:none!important} }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#hero" class="active">Overview</a>
+  <a href="#day1">Day 01</a>
+  <a href="#day2">Day 02</a>
+  <a href="#day3">Day 03</a>
+  <a href="#day4">Day 04</a>
+  <a href="#day5">Day 05</a>
+  <a href="#route">Route</a>
+</nav>
+
+<div class="rail"><div class="rail-track"><div class="rail-fill" id="railFill"></div></div></div>
+
+<section id="hero">
+  <div class="bg"></div>
+  <div class="content" style="text-align:center">
+    <div class="eyebrow">CHENNAI → SRI LANKA</div>
+    <h1>THE SRI LANKA<br>BACHELOR ESCAPE</h1>
+    <div class="dates">01 OCT — 05 OCT</div>
+    <div class="sub">Chennai → Colombo → Mirissa → Colombo → Chennai</div>
+  </div>
+  <div id="globeWrap">
+    <canvas id="globeCanvas"></canvas>
+    <div class="geo-label" id="lblChennai">CHENNAI</div>
+    <div class="geo-label" id="lblColombo">COLOMBO</div>
+    <div class="plane" id="heroPlane">✈️</div>
+  </div>
+</section>
+
+<section id="day1">
+  <div class="bg"></div>
+  <div class="content">
+    <div class="day-num">DAY 01</div>
+    <h2 class="day-title">Colombo After Dark</h2>
+    <div class="day-date">Thursday · October 1</div>
+
+    <div class="beat"><span class="time">14:55</span> <span class="transport">✈️</span>
+      <div class="place">Flight 6E 1179 departs Chennai</div>
+    </div>
+    <div class="beat"><span class="time">16:15</span> <span class="transport">🛬</span>
+      <div class="place">Touchdown · Bandaranaike Intl (CMB)</div>
+    </div>
+    <div class="beat"><span class="time">16:15 – 17:15</span> <span class="transport">🛂</span>
+      <div class="place">Immigration &amp; Currency</div>
+      <div class="note">Clear immigration, collect baggage, and convert group funds into local currency at the terminal bank counters.</div>
+    </div>
+    <div class="beat"><span class="time">17:30 – 18:30</span> <span class="transport">🚌</span>
+      <div class="place">187 AC Express Highway Bus → Colombo Fort</div>
+      <div class="note">Walk outside the terminal and board the bus into the city.</div>
+    </div>
+    <div class="beat"><span class="time">18:45 – 19:30</span> <span class="transport">🛺</span>
+      <div class="place">Colombo Fort → The Den 23</div>
+      <div class="note">Short bus or tuk-tuk to check in and drop luggage.</div>
+    </div>
+    <div class="beat"><span class="time">20:00 – 21:30</span> <span class="transport">🚶</span>
+      <div class="place">Port City &amp; Galle Face Green</div>
+      <div class="note">Walk the promenade, catch the evening ocean breeze, and grab local street food.</div>
+    </div>
+    <div class="beat"><span class="time">22:00 onwards</span> <span class="transport">🎲</span>
+      <div class="place">Casino Night · Bally's / Bellagio</div>
+      <div class="note">Head over straight after Galle Face.</div>
+      <div class="tag">Physical passports required · smart casual — trousers &amp; closed shoes, no shorts or flip-flops</div>
+    </div>
+  </div>
+</section>
+
+<section id="day2">
+  <div class="bg"></div>
+  <div class="content">
+    <div class="day-num">DAY 02</div>
+    <h2 class="day-title">The Coastal Escape</h2>
+    <div class="day-date">Friday · October 2</div>
+
+    <div class="beat"><span class="time">07:00</span> <span class="transport">☀️</span>
+      <div class="place">Wake &amp; Pack</div>
+    </div>
+    <div class="beat"><span class="time">07:45 – 08:15</span> <span class="transport">🚶</span>
+      <div class="place">Check out → Colombo Fort Railway Station</div>
+    </div>
+    <div class="beat"><span class="time">08:35 – 11:49</span> <span class="transport">🚆</span>
+      <div class="place">Express Train #8040 → Weligama</div>
+      <div class="note">Colombo Fort to Weligama. Window seats on the right side for uninterrupted Indian Ocean views along the coastal tracks.</div>
+    </div>
+    <div class="beat"><span class="time">12:00 – 12:30</span> <span class="transport">🚌</span>
+      <div class="place">Weligama → Mirissa</div>
+      <div class="note">Local coastal bus.</div>
+    </div>
+    <div class="beat"><span class="time">12:30 – 13:30</span> <span class="transport">🏨</span>
+      <div class="place">Check in · Sun Hopes</div>
+      <div class="note">Drop bags and hand over the pre-settled room payment envelope at reception.</div>
+    </div>
+    <div class="beat"><span class="time">13:30 – 15:30</span> <span class="transport">🍴</span>
+      <div class="place">Lunch, Unpack &amp; Freshen Up</div>
+    </div>
+    <div class="beat"><span class="time">15:30 – 16:30</span> <span class="transport">🛺</span>
+      <div class="place">Mirissa → Galle Fort</div>
+      <div class="note">Coastal bus or tuk-tuk northwest up the coast.</div>
+    </div>
+    <div class="beat"><span class="time">16:30 – 19:00</span> <span class="transport">🚶</span>
+      <div class="place">Galle Fort</div>
+      <div class="note">Cobblestone streets, the ocean ramparts, Galle Lighthouse — sunset over the sea.</div>
+    </div>
+    <div class="beat"><span class="time">19:00 – 20:00</span> <span class="transport">🍽️</span>
+      <div class="place">Dutch Hospital</div>
+      <div class="note">Early dinner or drinks inside the fort walls.</div>
+    </div>
+    <div class="beat"><span class="time">20:00 – 20:45</span> <span class="transport">🛺</span>
+      <div class="place">Galle Fort → Mirissa</div>
+    </div>
+    <div class="beat"><span class="time">21:00 onwards</span> <span class="transport">🔥</span>
+      <div class="place">Mirissa Beach Road · Zephyr, Salt, Papa Mango</div>
+      <div class="note">Beachwear and flip-flops on — beachfront drinks, music, fire shows on the sand.</div>
+    </div>
+  </div>
+</section>
+
+<section id="day3">
+  <div class="bg"></div>
+  <div class="content">
+    <div class="day-num">DAY 03</div>
+    <h2 class="day-title">Surf. Sea. Sunset.</h2>
+    <div class="day-date">Saturday · October 3</div>
+
+    <div class="beat"><span class="time">08:30 – 11:30</span> <span class="transport">🏄</span>
+      <div class="place">Surfing · Weligama Bay</div>
+      <div class="note">Short local bus to the bay — gentle, consistent beach-break waves for beginner and intermediate surfing. Rent boards on the beach.</div>
+    </div>
+    <div class="beat"><span class="time">12:00 – 13:30</span> <span class="transport">🍴</span>
+      <div class="place">Lunch · Beach Shack</div>
+      <div class="note">Regroup after the surf session.</div>
+    </div>
+    <div class="beat"><span class="time">14:00 – 16:30</span> <span class="transport">🐢</span>
+      <div class="place">Snorkeling · Turtle Bay &amp; Parrot Rock</div>
+      <div class="note">Off Mirissa Beach — sheltered reef waters with close encounters with wild sea turtles and tropical fish.</div>
+    </div>
+    <div class="beat"><span class="time">17:30 – 18:30</span> <span class="transport">🌴</span>
+      <div class="place">Coconut Tree Hill</div>
+      <div class="note">Golden-hour shots across the palm grove and bay.</div>
+    </div>
+    <div class="beat"><span class="time">19:30 onwards</span> <span class="transport">🎶</span>
+      <div class="place">Beach Dinner &amp; Mirissa Night Parties</div>
+      <div class="note">Dinner along the beach, then Mirissa's rotating beachfront parties.</div>
+    </div>
+  </div>
+</section>
+
+<section id="day4">
+  <div class="bg"></div>
+  <div class="content">
+    <div class="day-num">DAY 04</div>
+    <h2 class="day-title">Back to the City</h2>
+    <div class="day-date">Sunday · October 4</div>
+
+    <div class="beat"><span class="time">08:30 – 09:30</span> <span class="transport">🧳</span>
+      <div class="place">Wake, Pack &amp; Check Out</div>
+      <div class="note">Check out of Sun Hopes — complete before 10:00.</div>
+    </div>
+    <div class="beat"><span class="time">10:00 – 13:00</span> <span class="transport">🚆</span>
+      <div class="place">Mirissa → Colombo</div>
+      <div class="note">Coastal train or expressway bus back up the coast.</div>
+    </div>
+    <div class="beat"><span class="time">13:30 – 14:15</span> <span class="transport">🛺</span>
+      <div class="place">Check in · Metro Marine Drive Hotel</div>
+      <div class="note">Bus or tuk-tuk to Bambalapitiya, Colombo 04 — Jaya Road. Drop off all luggage.</div>
+    </div>
+    <div class="beat"><span class="time">14:30 – 19:30</span> <span class="transport">🛍️</span>
+      <div class="place">Colombo Shopping Run</div>
+      <div class="note">Marino Mall or Majestic City nearby, or a tuk-tuk further in for Odel (Alexandra Place) and the Pettah street bazaars.</div>
+    </div>
+    <div class="beat"><span class="time">19:30 – 21:30</span> <span class="transport">🍽️</span>
+      <div class="place">Final Bachelor Crew Dinner</div>
+      <div class="note">Sit-down seafood or rooftop venue in Colombo.</div>
+    </div>
+    <div class="beat"><span class="time">21:30 – 00:00</span> <span class="transport">🛌</span>
+      <div class="place">Back to the Hotel</div>
+      <div class="note">Shower, pack the shopping hauls, and grab a couple of hours of rest.</div>
+    </div>
+  </div>
+</section>
+
+<section id="day5">
+  <div class="bg"></div>
+  <div class="content" style="text-align:center">
+    <div class="day-num">DAY 05</div>
+    <h2 class="day-title">Until Next Time, Sri Lanka</h2>
+    <div class="day-date">Monday · October 5</div>
+
+    <div class="beat" style="border:none; padding-left:0; text-align:center">
+      <span class="time">00:15 – 00:45</span> <span class="transport">🚕</span>
+      <div class="place">Check Out → Bandaranaike Intl</div>
+      <div class="note" style="margin-left:auto;margin-right:auto">Check out of Metro Marine Drive Hotel. AC Express Highway Bus or taxi/Uber north to CMB.</div>
+    </div>
+    <div class="beat" style="border:none; padding-left:0; text-align:center">
+      <span class="time">00:45</span> <span class="transport">🛂</span>
+      <div class="place">Arrive CMB Terminal</div>
+      <div class="note" style="margin-left:auto;margin-right:auto">Security screening, bag drop and immigration.</div>
+    </div>
+    <div class="beat" style="border:none; padding-left:0; text-align:center">
+      <span class="time">03:45</span> <span class="transport">✈️</span>
+      <div class="place">Flight 6E 1172 departs Colombo</div>
+    </div>
+    <div class="beat" style="border:none; padding-left:0; text-align:center">
+      <span class="time">05:05</span> <span class="transport">🛬</span>
+      <div class="place">Touchdown · Chennai (MAA)</div>
+    </div>
+
+    <h2 style="margin-top:50px; font-size:clamp(22px,4vw,34px)">TRIP COMPLETE</h2>
+    <div class="checks">
+      <span>Colombo ✓</span><span>Mirissa ✓</span><span>Surf ✓</span><span>Snorkel ✓</span>
+      <span>Sunsets ✓</span><span>Nightlife ✓</span><span>Memories ✓</span>
+    </div>
+    <div class="outro">Sri Lanka, you were good to us.<br>01.10 → 05.10 · Chennai → Sri Lanka → Chennai</div>
+  </div>
+</section>
+
+<section id="route">
+  <div class="bg"></div>
+  <div class="content">
+    <div class="eyebrow" style="text-align:center">THE FULL ROUTE</div>
+    <div class="map-line">
+      <div class="stop">Chennai</div>
+      <div class="stop">Bandaranaike Airport</div>
+      <div class="stop">Colombo</div>
+      <div class="stop">Colombo Fort</div>
+      <div class="stop">Weligama</div>
+      <div class="stop">Mirissa</div>
+      <div class="stop">Galle</div>
+      <div class="stop">Mirissa</div>
+      <div class="stop">Colombo</div>
+      <div class="stop">Bandaranaike Airport</div>
+      <div class="stop">Chennai</div>
+    </div>
+  </div>
+</section>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// scroll progress rail
+gsap.to("#railFill",{height:"100%",ease:"none",
+  scrollTrigger:{trigger:document.body,start:"top top",end:"bottom bottom",scrub:true}});
+
+// 3D globe: exact Chennai -> Colombo great-circle route
+(function(){
+  const canvas=document.getElementById('globeCanvas');
+  let W=canvas.clientWidth||window.innerWidth, H=canvas.clientHeight||window.innerHeight;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth<480?1:1.5));
+  renderer.setSize(W,H,false);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(42,W/H,0.1,100);
+
+  const R=1;
+  function latLon(lat,lon,r){
+    const phi=(90-lat)*Math.PI/180, theta=(lon+180)*Math.PI/180;
+    return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(theta), r*Math.cos(phi), r*Math.sin(phi)*Math.sin(theta));
+  }
+  const CHENNAI=latLon(13.0827,80.2707,R);   // 13.0827N 80.2707E
+  const COLOMBO=latLon(6.9271,79.8612,R);    // 6.9271N 79.8612E
+  const mid=CHENNAI.clone().add(COLOMBO).normalize();
+
+  const globe=new THREE.Mesh(new THREE.SphereGeometry(R,40,40),
+    new THREE.MeshBasicMaterial({color:0x0d2a3d,transparent:true,opacity:.55}));
+  const wire=new THREE.Mesh(new THREE.SphereGeometry(R*1.002,22,22),
+    new THREE.MeshBasicMaterial({color:0xd9a856,wireframe:true,transparent:true,opacity:.22}));
+  const dotMat=new THREE.MeshBasicMaterial({color:0xff7a45});
+  const markerC=new THREE.Mesh(new THREE.SphereGeometry(0.022,12,12),dotMat); markerC.position.copy(CHENNAI);
+  const markerM=new THREE.Mesh(new THREE.SphereGeometry(0.022,12,12),dotMat); markerM.position.copy(COLOMBO);
+
+  const ctrl=mid.clone().multiplyScalar(R+0.45);
+  const curve=new THREE.QuadraticBezierCurve3(CHENNAI,ctrl,COLOMBO);
+  const arc=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(60)),
+    new THREE.LineBasicMaterial({color:0xd9a856}));
+
+  const group=new THREE.Group();
+  group.add(globe,wire,arc,markerC,markerM);
+  scene.add(group);
+
+  camera.position.copy(mid.clone().multiplyScalar(3.3));
+  camera.lookAt(0,0,0);
+
+  const plane=document.getElementById('heroPlane');
+  const lblC=document.getElementById('lblChennai'), lblM=document.getElementById('lblColombo');
+  const tmpV=new THREE.Vector3();
+  function projectVec(v){
+    const p=v.clone().project(camera);
+    return {x:(p.x*.5+.5)*W, y:(-p.y*.5+.5)*H};
+  }
+
+  let progress=0;
+  ScrollTrigger.create({trigger:"#hero",start:"top top",end:"bottom top",scrub:true,
+    onUpdate:self=>{ progress=self.progress; }});
+
+  function render(){
+    requestAnimationFrame(render);
+    group.rotation.y=Math.sin(Date.now()*0.00015)*0.05;
+    camera.position.copy(mid.clone().multiplyScalar(3.3-progress*1.0));
+    camera.lookAt(0,0,0);
+    renderer.render(scene,camera);
+
+    const pC=projectVec(markerC.getWorldPosition(tmpV.clone()));
+    const pM=projectVec(markerM.getWorldPosition(tmpV.clone()));
+    lblC.style.transform=`translate(${pC.x-40}px,${pC.y-30}px)`;
+    lblM.style.transform=`translate(${pM.x-40}px,${pM.y+14}px)`;
+
+    const localFly=curve.getPointAt(Math.min(Math.max(progress*1.4,0.02),0.98));
+    const worldFly=group.localToWorld(localFly.clone());
+    const pF=projectVec(worldFly);
+    plane.style.transform=`translate(${pF.x}px,${pF.y}px) translate(-50%,-50%) rotate(${-15+progress*30}deg)`;
+  }
+  render();
+
+  window.addEventListener('resize',()=>{
+    W=canvas.clientWidth; H=canvas.clientHeight;
+    if(!W||!H) return;
+    renderer.setSize(W,H,false); camera.aspect=W/H; camera.updateProjectionMatrix();
+  });
+})();
+
+// nav active state
+document.querySelectorAll("section").forEach(sec=>{
+  ScrollTrigger.create({
+    trigger:sec, start:"top center", end:"bottom center",
+    onToggle:self=>{ if(self.isActive){
+      document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
+      const link=document.querySelector('nav a[href="#'+sec.id+'"]');
+      if(link) link.classList.add("active");
+    }}
+  });
+});
+
+// beat / stop reveal
+gsap.utils.toArray(".beat,.stop").forEach(el=>{
+  gsap.to(el,{opacity:1,x:0,y:0,duration:.7,ease:"power2.out",
+    scrollTrigger:{trigger:el,start:"top 85%"}});
+});
+</script>
+</body>
+</html>
