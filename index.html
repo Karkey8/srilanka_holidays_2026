@@ -81,6 +81,8 @@ section{position:relative; min-height:100vh; min-height:100dvh; display:flex; al
 .beat .place{font-size:20px; font-family:'Fraunces'; font-weight:600; margin-top:2px}
 .beat .note{font-size:13.5px; color:rgba(243,237,224,.62); margin-top:6px; max-width:56ch}
 .beat .tag{display:inline-block; font-size:11px; color:var(--orange); border:1px solid rgba(255,122,69,.35); padding:2px 9px; border-radius:20px; margin-top:8px}
+.beat.cancelled .place{text-decoration:line-through; opacity:.55}
+.beat.cancelled .note{font-style:italic}
 .transport{font-size:18px; margin-right:8px}
 
 #day1 .bg{background:linear-gradient(180deg,#0a1e2e 0%,#1a2b1f 55%,#241318 100%)}
@@ -137,7 +139,7 @@ section{position:relative; min-height:100vh; min-height:100dvh; display:flex; al
   <div class="bg"></div>
   <div class="content">
     <div class="day-num">DAY 01</div>
-    <h2 class="day-title">Colombo After Dark</h2>
+    <h2 class="day-title">Arrival, Port City &amp; Colombo Coastline</h2>
     <div class="day-date">Thursday · October 1</div>
 
     <div class="beat"><span class="time">14:55</span> <span class="transport">✈️</span>
@@ -158,14 +160,21 @@ section{position:relative; min-height:100vh; min-height:100dvh; display:flex; al
       <div class="place">Colombo Fort → The Den 23</div>
       <div class="note">Short bus or tuk-tuk to check in and drop luggage.</div>
     </div>
-    <div class="beat"><span class="time">20:00 – 21:30</span> <span class="transport">🚶</span>
-      <div class="place">Port City &amp; Galle Face Green</div>
-      <div class="note">Walk the promenade, catch the evening ocean breeze, and grab local street food.</div>
+    <div class="beat"><span class="time">20:00 – 21:30</span> <span class="transport">🌉</span>
+      <div class="place">Port City Marina Promenade</div>
+      <div class="note">The new waterfront — panoramic views of the illuminated Colombo skyline and the Lotus Tower. First group photos.</div>
     </div>
-    <div class="beat"><span class="time">22:00 onwards</span> <span class="transport">🎲</span>
-      <div class="place">Casino Night · Bally's / Bellagio</div>
-      <div class="note">Head over straight after Galle Face.</div>
-      <div class="tag">Physical passports required · smart casual — trousers &amp; closed shoes, no shorts or flip-flops</div>
+    <div class="beat"><span class="time">21:30</span> <span class="transport">🚶</span>
+      <div class="place">Galle Face Green</div>
+      <div class="note">Right over from Port City. Seawall hangout, pooled cash for street food — kottu roti, isso vade.</div>
+    </div>
+    <div class="beat cancelled"><span class="time">22:00</span> <span class="transport">🎲</span>
+      <div class="place">Colombo Casino Run</div>
+      <div class="note">Cancelled — 5k LKR entry per person doesn't fit the group budget.</div>
+    </div>
+    <div class="beat"><span class="time">22:30</span> <span class="transport">🛌</span>
+      <div class="place">Back to The Den 23</div>
+      <div class="note">Sleep before the coastal train down to Mirissa tomorrow.</div>
     </div>
   </div>
 </section>
